@@ -26,3 +26,12 @@ def get_task(task_id: int):
         if task["id"] == task_id:
             return task
     return {"error": "Task not found"}
+
+
+
+@app.post("/tasks", status_code=201)
+def create_task(task: dict):
+    new_id = max((t["id"] for t in tasks), default=0) + 1
+    new_task = {"id": new_id, "title": task["title"], "done": False}
+    tasks.append(new_task)
+    return new_task
