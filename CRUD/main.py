@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -35,3 +36,22 @@ def create_task(task: dict):
     new_task = {"id": new_id, "title": task["title"], "done": False}
     tasks.append(new_task)
     return new_task
+
+
+@app.put("/tasks/{task_id}")
+def update_task(task_id: int, task: TaskCreate):
+    if not task.title or not task.title.strip():
+        return JSONResponse(status_code=400, content={"error": "title is required"})
+    for t in tasks:
+        if t["id"] == task_id:
+            t["title"] = task.title
+            return t
+    return JSONResponse(status_code=404, content={"error": f"Task {task_id} not found"})
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int):
+    for i, t in enumerate(tasks):
+        if t["id"] == task_id:
+            tasks.pop(i)
+            return
+    return JSONResponse(status_code=404, content={"error": f"Task {task_id} not found"})
